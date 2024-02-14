@@ -1,10 +1,9 @@
 package br.com.ifce.controller;
 
+import br.com.ifce.model.GameState;
 import br.com.ifce.model.Message;
 import br.com.ifce.service.IntegrationService;
 import br.com.ifce.service.MessageListener;
-
-import java.util.Arrays;
 
 public class MainViewController implements MessageListener {
 
@@ -17,7 +16,19 @@ public class MainViewController implements MessageListener {
 
     @Override
     public void onMessage(Message<?> message) {
-        for (int[] row : (int[][]) message.getPayload())
-            System.out.println(Arrays.toString(row));
+        switch (message.getType()) {
+            case START_GAME -> {
+                this.startGame((GameState) message.getPayload());
+                break;
+            }
+        }
+
+//        for (int[] row : (int[][]) state.getBoard())
+//            System.out.println(Arrays.toString(row));
+//        System.out.println(state.getCurrentPlayer());
+    }
+
+    void startGame(GameState state) {
+
     }
 }
