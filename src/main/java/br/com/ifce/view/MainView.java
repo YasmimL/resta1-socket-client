@@ -1,5 +1,7 @@
 package br.com.ifce.view;
 
+import br.com.ifce.model.Circle;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -14,15 +16,18 @@ public class MainView {
     }
 
     public void renderBoardPanel(int[][] board) {
-        var circlePanels = new Circle[board.length][board.length];
+        var circlePanels = new CirclePanel[board.length][board.length];
         var gridPanel = new JPanel(new GridLayout(board.length, board.length, 10, 10));
-
 
         for (int i = 0; i < circlePanels.length; i++) {
             for (int j = 0; j < circlePanels[i].length; j++) {
-                Circle circle = new Circle();
-                circlePanels[i][j] = circle;
-                gridPanel.add(circle);
+                CirclePanel circlePanel = new CirclePanel(new Circle(i, j));
+                if (board[i][j] == -1) circlePanel.setDraw(false);
+                if (board[i][j] == 0) circlePanel.setColor(new Color(189, 189, 189));
+                if (board[i][j] == 1) circlePanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+                circlePanels[i][j] = circlePanel;
+                gridPanel.add(circlePanel);
             }
         }
 

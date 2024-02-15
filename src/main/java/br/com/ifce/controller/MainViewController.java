@@ -4,6 +4,7 @@ import br.com.ifce.model.GameState;
 import br.com.ifce.model.Message;
 import br.com.ifce.service.IntegrationService;
 import br.com.ifce.service.MessageListener;
+import br.com.ifce.view.MainView;
 
 public class MainViewController implements MessageListener {
 
@@ -29,6 +30,8 @@ public class MainViewController implements MessageListener {
     }
 
     void startGame(GameState state) {
-
+        var view = new MainView();
+        view.renderBoardPanel(state.getBoard());
+        view.show();
     }
 }
