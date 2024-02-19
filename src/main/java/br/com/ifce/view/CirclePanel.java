@@ -1,7 +1,13 @@
 package br.com.ifce.view;
 
 import br.com.ifce.model.Circle;
+import br.com.ifce.model.Message;
+import br.com.ifce.model.Movement;
+import br.com.ifce.model.enums.MessageType;
+import br.com.ifce.network.SocketIntegrationService;
+import br.com.ifce.service.IntegrationService;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,31 +17,26 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.*;
 
 public class CirclePanel extends JPanel implements DragGestureListener {
+    private final IntegrationService service;
+
     private final Circle circle;
 
-    private Color color = new Color(183, 28, 28);
+    @Getter
+    private final Color initialColor = new Color(183, 28, 28);
+
+    private Color color = this.initialColor;
 
     private boolean draw = true;
 
     protected final DataFlavor dataFlavor = new DataFlavor(Circle.class, Circle.class.getSimpleName());
 
     public CirclePanel(Circle circle) {
+        this.service = SocketIntegrationService.getInstance();
         this.circle = circle;
 
         DragSource ds = new DragSource();
         ds.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);
-
         new DropTargetListener(this);
-
-//        addMouseListener(new MouseAdapter(){
-//            public void mousePressed(MouseEvent e) {
-//                if (isDraw()) {
-//                    setDraw(false);
-//                } else {
-//                    setDraw(true);
-//                }
-//            }
-//        });
     }
 
     public void setColor(Color color) {
@@ -46,6 +47,16 @@ public class CirclePanel extends JPanel implements DragGestureListener {
     public void setDraw(boolean draw) {
         this.draw = draw;
         repaint();
+    }
+
+    public void makeSpotFree() {
+        this.setColor(new Color(189, 189, 189));
+        this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+    }
+
+    public void makeSpotBusy() {
+        this.setColor(this.initialColor);
+        this.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
     @Override
@@ -62,6 +73,14 @@ public class CirclePanel extends JPanel implements DragGestureListener {
         }
     }
 
+    public int getValue() {
+        return this.circle.getValue();
+    }
+
+    public void setValue(int value) {
+        this.circle.setValue(value);
+    }
+
     @Override
     public void dragGestureRecognized(DragGestureEvent event) {
         Cursor cursor = null;
@@ -73,6 +92,10 @@ public class CirclePanel extends JPanel implements DragGestureListener {
         }
 
         event.startDrag(cursor, new TransferableCircle(panel.circle));
+    }
+
+    public void sendMessage(Message<?> message) {
+        this.service.send(message);
     }
 
     @AllArgsConstructor
@@ -100,13 +123,11 @@ public class CirclePanel extends JPanel implements DragGestureListener {
     }
 
     private class DropTargetListener extends DropTargetAdapter {
-        private DropTarget dropTarget;
-
-        private CirclePanel panel;
+        private final CirclePanel panel;
 
         public DropTargetListener(CirclePanel panel) {
             this.panel = panel;
-            this.dropTarget = new DropTarget(panel, DnDConstants.ACTION_COPY, this, true, null);
+            new DropTarget(panel, DnDConstants.ACTION_COPY, this, true, null);
         }
 
         @Override
@@ -117,15 +138,18 @@ public class CirclePanel extends JPanel implements DragGestureListener {
                 if (event.isDataFlavorSupported(dataFlavor)) {
                     event.acceptDrop(DnDConstants.ACTION_COPY);
 
-                    System.out.println("Origem:");
-                    System.out.println("Linha: " + circle.getRow());
-                    System.out.println("Coluna: " + circle.getColumn());
-                    System.out.println("-------------------");
-                    System.out.println("Destino:");
-                    System.out.println("Linha: " + this.panel.circle.getRow());
-                    System.out.println("Coluna: " + this.panel.circle.getColumn());
+                    var movement = new Movement(
+                            new int[]{circle.getRow(), circle.getColumn()},
+                            new int[]{this.panel.circle.getRow(), this.panel.circle.getColumn()}
+                    );
+
+                    this.panel.sendMessage(new Message<>(
+                            MessageType.MOVEMENT,
+                            movement
+                    ));
 
                     event.dropComplete(true);
+
                     return;
                 }
                 event.rejectDrop();

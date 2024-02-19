@@ -13,25 +13,28 @@ public class SocketIntegrationService implements IntegrationService {
 
     private final Socket socket;
 
-    private final ObjectInputStream inputStream;
-
-    private final ObjectOutputStream outputStream;
-
     private MessageListener listener;
 
     private Boolean interrupted = false;
 
-    public SocketIntegrationService() {
+    private static IntegrationService instance;
+
+    public static IntegrationService getInstance() {
+        if (instance == null) instance = new SocketIntegrationService();
+
+        return instance;
+    }
+
+    private SocketIntegrationService() {
         var host = "localhost";
         var port = 5000;
         try {
             this.socket = new Socket(host, port);
-            this.inputStream = new ObjectInputStream(socket.getInputStream());
-            this.outputStream = new ObjectOutputStream(socket.getOutputStream());
             Runnable serverListener = () -> {
                 while (!this.interrupted) {
                     try {
-                        this.listener.onMessage((Message<?>) this.inputStream.readObject());
+                        var inputStream = new ObjectInputStream(this.socket.getInputStream());
+                        this.listener.onMessage((Message<?>) inputStream.readObject());
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -46,7 +49,8 @@ public class SocketIntegrationService implements IntegrationService {
     @Override
     public void send(Message<?> message) {
         try {
-            this.outputStream.writeObject(message);
+            var outputStream = new ObjectOutputStream(this.socket.getOutputStream());
+            outputStream.writeObject(message);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
