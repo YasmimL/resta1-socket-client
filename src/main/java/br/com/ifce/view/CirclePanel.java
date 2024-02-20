@@ -16,7 +16,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.*;
 
-public class CirclePanel extends JPanel implements DragGestureListener {
+public class CirclePanel extends JPanel implements DragGestureListener, DragSourceListener {
     private final IntegrationService service;
 
     private final Circle circle;
@@ -35,7 +35,9 @@ public class CirclePanel extends JPanel implements DragGestureListener {
         this.circle = circle;
 
         DragSource ds = new DragSource();
+        ds.addDragSourceListener(this);
         ds.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);
+
         new DropTargetListener(this);
     }
 
@@ -83,10 +85,13 @@ public class CirclePanel extends JPanel implements DragGestureListener {
 
     @Override
     public void dragGestureRecognized(DragGestureEvent event) {
-        Cursor cursor = null;
+        if (!this.service.isPlayerTurn()) return;
+
         CirclePanel panel = (CirclePanel) event.getComponent();
+        if (panel.circle.getValue() == 0) return;
         panel.setColor(new Color(229, 115, 115));
 
+        Cursor cursor = null;
         if (event.getDragAction() == DnDConstants.ACTION_COPY) {
             cursor = DragSource.DefaultCopyDrop;
         }
@@ -96,6 +101,27 @@ public class CirclePanel extends JPanel implements DragGestureListener {
 
     public void sendMessage(Message<?> message) {
         this.service.send(message);
+    }
+
+    @Override
+    public void dragEnter(DragSourceDragEvent event) {
+    }
+
+    @Override
+    public void dragOver(DragSourceDragEvent event) {
+    }
+
+    @Override
+    public void dropActionChanged(DragSourceDragEvent event) {
+    }
+
+    @Override
+    public void dragExit(DragSourceEvent dse) {
+    }
+
+    @Override
+    public void dragDropEnd(DragSourceDropEvent event) {
+        if (!event.getDropSuccess()) this.setColor(this.initialColor);
     }
 
     @AllArgsConstructor

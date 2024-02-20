@@ -16,7 +16,10 @@ public class MainView {
         this.frame = new JFrame();
         this.frame.setSize(1000, 1000);
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.frame.setTitle("Test Frame");
+    }
+
+    public void setTitle(String title) {
+        this.frame.setTitle(title);
     }
 
     public void renderBoardPanel(int[][] board) {

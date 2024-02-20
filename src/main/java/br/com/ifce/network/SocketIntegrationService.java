@@ -3,6 +3,8 @@ package br.com.ifce.network;
 import br.com.ifce.model.Message;
 import br.com.ifce.service.IntegrationService;
 import br.com.ifce.service.MessageListener;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -16,6 +18,14 @@ public class SocketIntegrationService implements IntegrationService {
     private MessageListener listener;
 
     private Boolean interrupted = false;
+
+    @Getter
+    @Setter
+    private String playerKey;
+
+    @Getter
+    @Setter
+    private String currentPlayer;
 
     private static IntegrationService instance;
 
@@ -44,6 +54,11 @@ public class SocketIntegrationService implements IntegrationService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public boolean isPlayerTurn() {
+        return this.playerKey.equals(this.currentPlayer);
     }
 
     @Override

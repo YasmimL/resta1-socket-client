@@ -1,15 +1,12 @@
 package br.com.ifce.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.io.Serializable;
+import java.util.List;
 
-@AllArgsConstructor
-public class GameState implements Serializable {
-    @Getter
-    private int[][] board;
-
-    @Getter
-    private String currentPlayer;
+public record GameState(
+        @Getter int[][] board,
+        @Getter String currentPlayer,
+        @Getter List<Player> gameScore) implements Serializable {
 }
