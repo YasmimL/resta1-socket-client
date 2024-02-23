@@ -63,7 +63,7 @@ public class CirclePanel extends JPanel implements DragGestureListener, DragSour
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(75, 75);
+        return new Dimension(60, 60);
     }
 
     @Override
