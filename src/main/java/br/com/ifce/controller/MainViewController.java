@@ -29,28 +29,19 @@ public class MainViewController implements MessageListener {
             case INVALID_MOVEMENT -> this.view.undoMove((Movement) message.getPayload());
             case PLAYER_REGISTERED -> this.service.setPlayerKey((String) message.getPayload());
             case CHANGE_TURN -> this.changeTurn((String) message.getPayload());
+            case CHAT -> this.view.addChatMessage((ChatMessage) message.getPayload());
             case GAME_OVER, GAME_COMPLETE -> this.setCurrentPlayer(null);
         }
     }
 
-    void startGame(GameState state) {
+    public void startGame(GameState state) {
         this.view = new MainView();
         this.view.setTitle(this.service.getPlayerKey());
         this.view.renderStatusPane();
         this.view.renderBoardPanel(state.getBoard());
-        this.view.renderChatPanel();
+        this.view.renderSideMenu();
         this.view.show();
         this.setCurrentPlayer(state.getCurrentPlayer());
-
-        this.view.addChatMessage(new ChatMessage("PLAYER 1", LocalTime.now(), "Hello!"));
-        this.view.addChatMessage(new ChatMessage("PLAYER 2", LocalTime.now(), "How are you doing?"));
-        this.view.addChatMessage(new ChatMessage("PLAYER 1", LocalTime.now(), "I'm doing fine, what about you?"));
-        this.view.addChatMessage(new ChatMessage("PLAYER 1", LocalTime.now(), "Hello!"));
-        this.view.addChatMessage(new ChatMessage("PLAYER 2", LocalTime.now(), "How are you doing?"));
-        this.view.addChatMessage(new ChatMessage("PLAYER 1", LocalTime.now(), "I'm doing fine, what about you?"));
-        this.view.addChatMessage(new ChatMessage("PLAYER 1", LocalTime.now(), "Hello!"));
-        this.view.addChatMessage(new ChatMessage("PLAYER 2", LocalTime.now(), "How are you doing?"));
-        this.view.addChatMessage(new ChatMessage("PLAYER 1", LocalTime.now(), "I'm doing fine, what about you?"));
     }
 
     void changeTurn(String player) {

@@ -4,7 +4,6 @@ import br.com.ifce.model.Circle;
 import br.com.ifce.model.Message;
 import br.com.ifce.model.Movement;
 import br.com.ifce.model.enums.MessageType;
-import br.com.ifce.network.SocketIntegrationService;
 import br.com.ifce.service.IntegrationService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,7 +30,7 @@ public class CirclePanel extends JPanel implements DragGestureListener, DragSour
     protected final DataFlavor dataFlavor = new DataFlavor(Circle.class, Circle.class.getSimpleName());
 
     public CirclePanel(Circle circle) {
-        this.service = SocketIntegrationService.getInstance();
+        this.service = IntegrationService.getInstance();
         this.circle = circle;
 
         DragSource ds = new DragSource();
@@ -63,7 +62,7 @@ public class CirclePanel extends JPanel implements DragGestureListener, DragSour
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(60, 60);
+        return new Dimension(70, 70);
     }
 
     @Override

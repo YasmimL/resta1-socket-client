@@ -2,14 +2,21 @@ package br.com.ifce.view;
 
 import br.com.ifce.model.ChatMessage;
 import br.com.ifce.model.Circle;
+import br.com.ifce.model.Message;
 import br.com.ifce.model.Movement;
+import br.com.ifce.model.enums.MessageType;
+import br.com.ifce.service.IntegrationService;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.IntStream;
 
@@ -20,11 +27,15 @@ public class MainView {
 
     private JTextPane statusPane;
 
-    private JPanel chatPanel;
+    private JPanel messageListPanel;
 
     public MainView() {
         this.frame = new JFrame();
-        this.frame.setSize(1000, 1000);
+        this.frame.setSize(1000, 800);
+        JPanel contentPanel = new JPanel();
+        Border padding = BorderFactory.createEmptyBorder(20, 20, 20, 20);
+        contentPanel.setBorder(padding);
+        this.frame.setContentPane(contentPanel);
         this.frame.setLayout(new BorderLayout(20, 15));
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
@@ -35,12 +46,12 @@ public class MainView {
 
     public void renderStatusPane() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(new EmptyBorder(30, 30, 30, 30));
+        panel.setBorder(new CompoundBorder(new EmptyBorder(0, 0, 30, 0), BorderFactory.createLineBorder(Color.GRAY)));
 
         this.statusPane = new JTextPane();
         this.statusPane.setEditable(false);
         this.statusPane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 60));
-        this.statusPane.setForeground(new Color(183, 28, 28));
+        this.statusPane.setForeground(new Color(1, 87, 155));
 
         StyledDocument doc = this.statusPane.getStyledDocument();
         SimpleAttributeSet center = new SimpleAttributeSet();
@@ -76,33 +87,115 @@ public class MainView {
         JPanel boardPanel = new JPanel();
         boardPanel.add(gridPanel);
 
-        this.frame.add(boardPanel, BorderLayout.CENTER);
+        this.frame.add(boardPanel, BorderLayout.WEST);
     }
 
-    public void renderChatPanel() {
-        this.chatPanel = new JPanel(new GridBagLayout());
-        this.chatPanel.setLayout(new BoxLayout(this.chatPanel, BoxLayout.Y_AXIS));
+    public JPanel renderChatPanel() {
+        final int width = 350;
+        final int height = 400;
 
-        JScrollPane scrollPane = new JScrollPane(this.chatPanel);
+        JPanel chatPanel = new JPanel(new BorderLayout());
+        chatPanel.setPreferredSize(new Dimension(width, height));
+
+        JTextPane header = new JTextPane();
+        header.setEditable(false);
+        header.setBackground(new Color(1, 87, 155));
+        header.setForeground(Color.WHITE);
+        header.setFont(new Font(Font.MONOSPACED, Font.BOLD, 14));
+        header.setText("Chat");
+        StyledDocument doc = header.getStyledDocument();
+        SimpleAttributeSet center = new SimpleAttributeSet();
+        StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
+        doc.setParagraphAttributes(0, doc.getLength(), center, false);
+        chatPanel.add(header, BorderLayout.NORTH);
+
+        this.messageListPanel = new JPanel();
+        this.messageListPanel.setLayout(new GridBagLayout());
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.SOUTH;
+        constraints.weighty = Integer.MAX_VALUE;
+        this.messageListPanel.add(new Label(), constraints);
+
+        JScrollPane scrollPane = new JScrollPane(this.messageListPanel);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setPreferredSize(new Dimension(300, 300));
-        scrollPane.setBorder(new EmptyBorder(0, 200, 20, 200));
+        scrollPane.setPreferredSize(new Dimension(width, 200));
+        chatPanel.add(scrollPane, BorderLayout.CENTER);
 
-        this.frame.add(scrollPane, BorderLayout.SOUTH);
+        final int characterLimit = 27;
+        JPanel formPanel = new JPanel(new BorderLayout());
+        JTextField textField = new JPlaceholderTextField("Digite sua mensagem...");
+        textField.setPreferredSize(new Dimension(250, 25));
+        textField.addKeyListener(new KeyAdapter() {
+            public void keyTyped(KeyEvent event) {
+                if (textField.getText().length() >= characterLimit) event.consume();
+            }
+        });
+        formPanel.add(textField, BorderLayout.WEST);
+
+        JButton button = new JButton("Enviar");
+        button.setPreferredSize(new Dimension(100, textField.getPreferredSize().height));
+        button.addActionListener(event -> {
+            IntegrationService.getInstance().send(
+                    new Message<>(
+                            MessageType.CHAT,
+                            textField.getText()
+                    )
+            );
+            textField.setText("");
+        });
+        formPanel.add(button, BorderLayout.EAST);
+
+        chatPanel.add(formPanel, BorderLayout.SOUTH);
+
+        JPanel container = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        container.setBorder(new EmptyBorder(0, 0, 20, 0));
+        container.add(chatPanel);
+
+        return chatPanel;
+    }
+
+    private JPanel renderActions() {
+        JPanel actionsPanel = new JPanel();
+        actionsPanel.setLayout(new GridLayout(2, 1, 10, 10));
+        actionsPanel.setBorder(new EmptyBorder(20, 0, 20, 0));
+
+        JButton passTurnButton = new JButton("Desistir");
+        JButton giveUpButton = new JButton("Passar a vez");
+
+        actionsPanel.add(passTurnButton);
+        actionsPanel.add(giveUpButton);
+
+        return actionsPanel;
+    }
+
+    public void renderSideMenu() {
+        JPanel container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+        container.add(this.renderChatPanel());
+        container.add(this.renderActions());
+        this.frame.add(container, BorderLayout.EAST);
     }
 
     public void addChatMessage(ChatMessage message) {
         JPanel panel = new JPanel(new BorderLayout());
-        JPanel header = new JPanel();
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(new Color(129, 212, 250));
 
         JTextPane sender = new JTextPane();
         sender.setEditable(false);
         sender.setBackground(Color.BLACK);
+        sender.setFont(new Font(Font.MONOSPACED, Font.BOLD, 12));
         sender.setOpaque(false);
         sender.setText(message.getSender());
         header.add(sender, BorderLayout.WEST);
 
         JTextPane time = new JTextPane();
+        time.setBackground(new Color(129, 212, 250));
+        time.setFont(new Font(Font.MONOSPACED, Font.BOLD, 12));
         time.setEditable(false);
         time.setText(message.getTime().format(DateTimeFormatter.ofPattern("HH:mm")));
         header.add(time, BorderLayout.EAST);
@@ -114,17 +207,16 @@ public class MainView {
         body.setText(message.getText());
         panel.add(body, BorderLayout.SOUTH);
 
-        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridwidth = GridBagConstraints.REMAINDER;
-        constraints.weightx = 1;
-//        constraints.weighty = 1;
         constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.SOUTH;
+        constraints.weightx = 1;
+        constraints.weighty = 1;
 
-        this.chatPanel.add(panel, constraints);
-        this.chatPanel.validate();
-        this.chatPanel.repaint();
+        this.messageListPanel.add(panel, constraints);
+        this.messageListPanel.validate();
+        this.messageListPanel.repaint();
 
         SwingUtilities.invokeLater(() -> panel.scrollRectToVisible(panel.getBounds()));
     }
