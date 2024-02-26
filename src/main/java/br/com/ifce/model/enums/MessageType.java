@@ -2,9 +2,10 @@ package br.com.ifce.model.enums;
 
 public enum MessageType {
     CHAT,
-    BOARD,
     START_GAME,
-    GAME_STATE,
+    RESTART_GAME,
+    GIVE_UP,
+    PASS_TURN,
     MOVEMENT,
     INVALID_MOVEMENT,
     HIT,

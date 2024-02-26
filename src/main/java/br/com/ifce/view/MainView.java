@@ -29,6 +29,12 @@ public class MainView {
 
     private JPanel messageListPanel;
 
+    private JButton passTurnButton;
+
+    private JButton giveUpButton;
+
+    private JButton restartButton;
+
     public MainView() {
         this.frame = new JFrame();
         this.frame.setSize(1000, 800);
@@ -156,18 +162,36 @@ public class MainView {
         return chatPanel;
     }
 
-    private JPanel renderActions() {
+    public JPanel renderActions() {
+        IntegrationService service = IntegrationService.getInstance();
+
         JPanel actionsPanel = new JPanel();
-        actionsPanel.setLayout(new GridLayout(2, 1, 10, 10));
+        actionsPanel.setLayout(new GridLayout(3, 1, 10, 10));
         actionsPanel.setBorder(new EmptyBorder(20, 0, 20, 0));
 
-        JButton passTurnButton = new JButton("Desistir");
-        JButton giveUpButton = new JButton("Passar a vez");
+        this.passTurnButton = new JButton("Passar a vez");
+        this.passTurnButton.setEnabled(!service.isGameFinished() && service.isPlayerTurn());
+        this.passTurnButton.addActionListener(event -> service.send(new Message<>(MessageType.PASS_TURN, null)));
+        actionsPanel.add(this.passTurnButton);
 
-        actionsPanel.add(passTurnButton);
-        actionsPanel.add(giveUpButton);
+        this.giveUpButton = new JButton("Desistir");
+        this.giveUpButton.setEnabled(!service.isGameFinished());
+        this.giveUpButton.addActionListener(event -> service.send(new Message<>(MessageType.GIVE_UP, null)));
+        actionsPanel.add(this.giveUpButton);
+
+        this.restartButton = new JButton("Jogar de novo");
+        this.restartButton.setEnabled(service.isGameFinished());
+        this.restartButton.addActionListener(event -> service.send(new Message<>(MessageType.RESTART_GAME, null)));
+        actionsPanel.add(this.restartButton);
 
         return actionsPanel;
+    }
+
+    public void updateActionButtons() {
+        IntegrationService service = IntegrationService.getInstance();
+        this.passTurnButton.setEnabled(!service.isGameFinished() && service.isPlayerTurn());
+        this.giveUpButton.setEnabled(!service.isGameFinished());
+        this.restartButton.setEnabled(service.isGameFinished());
     }
 
     public void renderSideMenu() {

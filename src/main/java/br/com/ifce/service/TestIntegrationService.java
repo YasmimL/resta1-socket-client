@@ -52,6 +52,16 @@ public class TestIntegrationService implements IntegrationService {
 
     }
 
+    @Override
+    public boolean isGameFinished() {
+        return false;
+    }
+
+    @Override
+    public void setGameFinished(boolean gameFinished) {
+
+    }
+
     private GameState getGameState() {
         return new GameState(
                 this.getBoard(),

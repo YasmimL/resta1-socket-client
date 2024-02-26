@@ -27,6 +27,10 @@ public class SocketIntegrationService implements IntegrationService {
     @Setter
     private String currentPlayer;
 
+    @Getter
+    @Setter
+    private boolean gameFinished = false;
+
     private static IntegrationService instance;
 
     public static IntegrationService getInstance() {
@@ -36,7 +40,7 @@ public class SocketIntegrationService implements IntegrationService {
     }
 
     private SocketIntegrationService() {
-        var host = "localhost";
+        var host = "127.0.0.1";
         var port = 5000;
         try {
             this.socket = new Socket(host, port);

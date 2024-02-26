@@ -24,4 +24,8 @@ public interface IntegrationService {
     void setMessageListener(MessageListener listener);
 
     void close();
+
+    boolean isGameFinished();
+
+    void setGameFinished(boolean gameFinished);
 }
