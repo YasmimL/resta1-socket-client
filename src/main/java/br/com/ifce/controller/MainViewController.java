@@ -32,6 +32,7 @@ public class MainViewController implements MessageListener {
             case CHAT -> this.view.addChatMessage((ChatMessage) message.getPayload());
             case GAME_OVER -> this.handleGameOver();
             case GAME_COMPLETE -> this.handleGameComplete((GameReport) message.getPayload());
+            case CLOSE -> this.close();
         }
     }
 
@@ -94,5 +95,9 @@ public class MainViewController implements MessageListener {
         } else {
             this.view.setStatusText("Aguarde sua vez...");
         }
+    }
+
+    private void close() {
+        this.view.close();
     }
 }

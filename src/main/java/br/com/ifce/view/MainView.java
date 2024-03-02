@@ -17,6 +17,7 @@ import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.IntStream;
 
@@ -267,5 +268,9 @@ public class MainView {
         var column = movement.getSource()[1];
         var panel = this.circlePanels[row][column];
         panel.setColor(panel.getInitialColor());
+    }
+
+    public void close() {
+        this.frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
     }
 }

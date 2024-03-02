@@ -1,6 +1,7 @@
 package br.com.ifce.network;
 
 import br.com.ifce.model.Message;
+import br.com.ifce.model.enums.MessageType;
 import br.com.ifce.service.IntegrationService;
 import br.com.ifce.service.MessageListener;
 import lombok.Getter;
@@ -50,6 +51,7 @@ public class SocketIntegrationService implements IntegrationService {
                         var inputStream = new ObjectInputStream(this.socket.getInputStream());
                         this.listener.onMessage((Message<?>) inputStream.readObject());
                     } catch (Exception e) {
+                        this.close();
                         throw new RuntimeException(e);
                     }
                 }
@@ -85,6 +87,7 @@ public class SocketIntegrationService implements IntegrationService {
         this.interrupted = true;
         try {
             this.socket.close();
+            this.listener.onMessage(new Message<>(MessageType.CLOSE, null));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

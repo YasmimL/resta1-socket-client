@@ -12,5 +12,6 @@ public enum MessageType {
     PLAYER_REGISTERED,
     CHANGE_TURN,
     GAME_OVER,
-    GAME_COMPLETE;
+    GAME_COMPLETE,
+    CLOSE;
 }
