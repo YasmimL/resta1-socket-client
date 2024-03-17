@@ -16,6 +16,7 @@ public class SocketIntegrationService implements IntegrationService {
 
     private final Socket socket;
 
+    @Setter
     private MessageListener listener;
 
     private Boolean interrupted = false;
@@ -63,11 +64,6 @@ public class SocketIntegrationService implements IntegrationService {
     }
 
     @Override
-    public boolean isPlayerTurn() {
-        return this.playerKey.equals(this.currentPlayer);
-    }
-
-    @Override
     public void send(Message<?> message) {
         try {
             var outputStream = new ObjectOutputStream(this.socket.getOutputStream());
@@ -75,11 +71,6 @@ public class SocketIntegrationService implements IntegrationService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void setMessageListener(MessageListener listener) {
-        this.listener = listener;
     }
 
     @Override

@@ -40,7 +40,7 @@ public class TestIntegrationService implements IntegrationService {
     }
 
     @Override
-    public void setMessageListener(MessageListener listener) {
+    public void setListener(MessageListener listener) {
         listener.onMessage(new Message<>(
                 MessageType.START_GAME,
                 this.getGameState()

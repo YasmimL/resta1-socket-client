@@ -13,7 +13,7 @@ public class MainViewController implements MessageListener {
 
     public MainViewController(IntegrationService service) {
         this.service = service;
-        this.service.setMessageListener(this);
+        this.service.setListener(this);
     }
 
     @Override

@@ -1,12 +1,17 @@
 package br.com.ifce.service;
 
 import br.com.ifce.model.Message;
-import br.com.ifce.network.SocketIntegrationService;
+import br.com.ifce.network.rmi.RMIIntegrationService;
 
 public interface IntegrationService {
     static IntegrationService getInstance() {
-        return SocketIntegrationService.getInstance();
+        return RMIIntegrationService.getInstance();
+//        return SocketIntegrationService.getInstance();
 //        return new TestIntegrationService();
+    }
+
+    default boolean isPlayerTurn() {
+        return this.getPlayerKey().equals(this.getCurrentPlayer());
     }
 
     String getPlayerKey();
@@ -17,11 +22,9 @@ public interface IntegrationService {
 
     void setCurrentPlayer(String currentPlayer);
 
-    boolean isPlayerTurn();
-
     void send(Message<?> message);
 
-    void setMessageListener(MessageListener listener);
+    void setListener(MessageListener listener);
 
     void close();
 
