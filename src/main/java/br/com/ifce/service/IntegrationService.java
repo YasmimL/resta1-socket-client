@@ -6,8 +6,6 @@ import br.com.ifce.network.rmi.RMIIntegrationService;
 public interface IntegrationService {
     static IntegrationService getInstance() {
         return RMIIntegrationService.getInstance();
-//        return SocketIntegrationService.getInstance();
-//        return new TestIntegrationService();
     }
 
     default boolean isPlayerTurn() {

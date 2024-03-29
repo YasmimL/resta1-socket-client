@@ -1,6 +1,7 @@
 package br.com.ifce.network.rmi;
 
 import br.com.ifce.model.Message;
+import br.com.ifce.model.enums.MessageType;
 import br.com.ifce.service.IntegrationService;
 import br.com.ifce.service.MessageListener;
 import lombok.Getter;
@@ -34,10 +35,9 @@ public class RMIIntegrationService extends UnicastRemoteObject implements Client
     protected RMIIntegrationService() throws RemoteException {
         super();
         try {
-//            Naming.rebind("//localhost/Client", this);
             Registry registry = LocateRegistry.getRegistry();
             this.server = (ServerRemote) registry.lookup("Server");
-            this.server.registerClient(this);
+            this.playerKey = this.server.registerClient(this);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -69,7 +69,7 @@ public class RMIIntegrationService extends UnicastRemoteObject implements Client
 
     @Override
     public void close() {
-
+        this.listener.onMessage(new Message<>(MessageType.CLOSE, null));
     }
 
     @Override
